@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plantões Médicos - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .config-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .config-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .plantoes-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .plantoes-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .plantao-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plantao-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .plantao-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .plantao-date {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .plantao-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .status-urgente {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .status-proximo {
+            background: #ffd93d;
+            color: #333;
+        }
+
+        .status-futuro {
+            background: #6bcf7f;
+            color: white;
+        }
+
+        .plantao-local {
+            color: #666;
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👨‍⚕️ Plantões Médicos 👩‍⚕️</h1>
+            <p>Gerencie seus plantões de forma inteligente</p>
+        </header>
+
+        <div class="config-section">
+            <h2>🔑 Configuração</h2>
+            <div class="input-group">
+                <input type="text" id="chatId" placeholder="Digite seu Chat ID (envie /id no bot)">
+                <button onclick="carregarDados()">🔍 Buscar Plantões</button>
+            </div>
+            <p style="color: #666; font-size: 0.9rem;">
+                💡 Não sabe seu Chat ID? Abra o bot no Telegram e envie o comando <code>/id</code>
+            </p>
+        </div>
+
+        <div id="errorContainer"></div>
+
+        <div id="statsContainer" style="display: none;">
+            <div class="stats">
+                <div class="stat-card">
+                    <h3 id="statTotal">0</h3>
+                    <p>Total de Plantões</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="statHoje">0</h3>
+                    <p>Hoje</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="statAmanha">0</h3>
+                    <p>Amanhã</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="plantoes-section">
+            <h2>📋 Próximos Plantões</h2>
+            <div id="plantoesContainer">
+                <div class="empty-state">
+                    <h3>👆 Configure seu Chat ID acima</h3>
+                    <p>Digite seu Chat ID e clique em "Buscar Plantões"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+
+        function getStatusClass(horasRestantes) {
+            if (horasRestantes < 0) return 'status-futuro';
+            if (horasRestantes < 3) return 'status-urgente';
+            if (horasRestantes < 24) return 'status-proximo';
+            return 'status-futuro';
+        }
+
+        function formatarStatus(status) {
+            return status;
+        }
+
+        async function carregarDados() {
+            const chatId = document.getElementById('chatId').value.trim();
+            
+            if (!chatId) {
+                mostrarErro('Por favor, digite seu Chat ID');
+                return;
+            }
+
+            limparErro();
+            mostrarLoading();
+
+            try {
+                // Buscar estatísticas
+                const statsResponse = await fetch(`${API_URL}/api/stats/${chatId}`);
+                
+                if (!statsResponse.ok) {
+                    throw new Error(`Erro ao conectar com a API (Status: ${statsResponse.status}). Certifique-se que o web_api.py está rodando!`);
+                }
+                
+                const statsData = await statsResponse.json();
+
+                if (statsData.success) {
+                    document.getElementById('statTotal').textContent = statsData.stats.total_plantoes;
+                    document.getElementById('statHoje').textContent = statsData.stats.plantoes_hoje;
+                    document.getElementById('statAmanha').textContent = statsData.stats.plantoes_amanha;
+                    document.getElementById('statsContainer').style.display = 'block';
+                }
+
+                // Buscar plantões
+                const plantoesResponse = await fetch(`${API_URL}/api/plantoes/${chatId}?limite=20`);
+                
+                if (!plantoesResponse.ok) {
+                    throw new Error(`Erro ao buscar plantões (Status: ${plantoesResponse.status})`);
+                }
+                
+                const plantoesData = await plantoesResponse.json();
+
+                if (plantoesData.success) {
+                    renderizarPlantoes(plantoesData.plantoes);
+                } else {
+                    throw new Error(plantoesData.error || 'Erro ao buscar plantões');
+                }
+
+                // Salvar Chat ID no localStorage
+                localStorage.setItem('chatId', chatId);
+
+            } catch (error) {
+                mostrarErro(`Erro ao carregar dados: ${error.message}`);
+                document.getElementById('plantoesContainer').innerHTML = `
+                    <div class="empty-state">
+                        <h3>❌ Erro ao carregar</h3>
+                        <p>${error.message}</p>
+                        <br>
+                        <p style="font-size: 0.9em; color: #666;">
+                            💡 Dica: Certifique-se que está rodando:<br>
+                            <code>python web_api.py</code>
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderizarPlantoes(plantoes) {
+            const container = document.getElementById('plantoesContainer');
+
+            if (plantoes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>📭 Nenhum plantão agendado</h3>
+                        <p>Use o bot do Telegram para adicionar seus plantões!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = plantoes.map(plantao => `
+                <div class="plantao-card">
+                    <div class="plantao-header">
+                        <div class="plantao-date">
+                            📅 ${plantao.data} ⏰ ${plantao.hora}
+                        </div>
+                        <div class="plantao-status ${getStatusClass(plantao.horas_restantes)}">
+                            ${formatarStatus(plantao.status)}
+                        </div>
+                    </div>
+                    <div class="plantao-local">
+                        🏥 ${plantao.local}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function mostrarLoading() {
+            document.getElementById('plantoesContainer').innerHTML = `
+                <div class="loading">
+                    ⏳ Carregando plantões...
+                </div>
+            `;
+        }
+
+        function mostrarErro(mensagem) {
+            document.getElementById('errorContainer').innerHTML = `
+                <div class="error">
+                    ❌ ${mensagem}
+                </div>
+            `;
+        }
+
+        function limparErro() {
+            document.getElementById('errorContainer').innerHTML = '';
+        }
+
+        // Carregar Chat ID salvo
+        window.addEventListener('DOMContentLoaded', () => {
+            const chatIdSalvo = localStorage.getItem('chatId');
+            if (chatIdSalvo) {
+                document.getElementById('chatId').value = chatIdSalvo;
+                carregarDados();
+            }
+        });
+
+        // Permitir Enter no input
+        document.getElementById('chatId').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                carregarDados();
+            }
+        });
+    </script>
+</body>
+</html>

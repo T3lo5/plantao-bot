@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: plantao_bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    command: python bot.py
+
+  web:
+    build: .
+    container_name: plantao_web
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+    command: gunicorn -w 2 -b 0.0.0.0:5000 web_api:app
+    depends_on:
+      - bot
