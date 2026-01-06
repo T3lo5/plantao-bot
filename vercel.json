@@ -1,0 +1,17 @@
+cat > vercel.json << 'EOF'
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "web_api.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "web_api.py"
+    }
+  ]
+}
+EOF
