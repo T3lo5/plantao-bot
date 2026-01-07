@@ -9,7 +9,10 @@ load_dotenv()
 
 # Configurações do Bot
 BOT_TOKEN = os.getenv('BOT_TOKEN')
-CHAT_ID_NAMORADO = os.getenv('CHAT_ID_NAMORADO', '')  
+CHAT_ID_NAMORADO = os.getenv('CHAT_ID_NAMORADO', '')  # Opcional
+
+# Configurações da API Web
+API_URL = os.getenv('API_URL', 'http://localhost:5000')  # URL da API para o frontend
 
 # Validação: Token é obrigatório
 if not BOT_TOKEN:

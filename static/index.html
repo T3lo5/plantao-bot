@@ -278,7 +278,10 @@
     </div>
 
     <script>
-        const API_URL = window.location.origin;
+        // URL da API - será substituída automaticamente no deploy
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000' 
+            : 'http://137.131.147.91:5000';
 
         function getStatusClass(horasRestantes) {
             if (horasRestantes < 0) return 'status-futuro';

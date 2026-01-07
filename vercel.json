@@ -1,17 +1,19 @@
-cat > vercel.json << 'EOF'
 {
   "version": 2,
   "builds": [
     {
-      "src": "web_api.py",
-      "use": "@vercel/python"
+      "src": "static/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "web_api.py"
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/",
+      "dest": "/static/index.html"
     }
   ]
 }
-EOF
